@@ -1,78 +1,122 @@
-# Little Dragon - Personal Assistant Agent
+# Little Dragon
 
-A personal assistant agent that integrates with local software and services, featuring both text and voice chat capabilities.
+A modern web application with a microservices architecture, built using FastAPI, Next.js, and Celery.
 
-## Features
-- Text-based chat interface
-- Voice chat capabilities
-- Integration with local software and services
-- Modern, responsive UI
+## Architecture
 
-## Tech Stack
-- Frontend: Next.js with TypeScript
-- Backend: Python FastAPI
-- AI: OpenAI Agent SDK / MCP
-- Voice: Web Speech API
+```mermaid
+graph TD
+    A[Frontend<br/>Next.js] -->|HTTP| B[Backend<br/>FastAPI]
+    B -->|Tasks| C[Redis<br/>Message Queue]
+    C -->|Process| D[Worker<br/>Celery]
+    D -->|Results| C
+    C -->|Poll| B
+    B -->|Response| A
 
-## Setup
-
-### Backend Setup
-1. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+    subgraph "Services"
+        A
+        B
+        C
+        D
+    end
 ```
 
-2. Install dependencies:
-```bash
-cd backend
-pip install -r requirements.txt
-```
+### Components
 
-3. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your OpenAI API key
-```
+- **Frontend**: Next.js application running on port 3001
+- **Backend**: FastAPI application running on port 8005
+- **Worker**: Celery worker for processing background tasks
+- **Redis**: Message queue and result backend for Celery
 
-4. Run the backend:
-```bash
-uvicorn main:app --reload
-```
+## Prerequisites
 
-### Frontend Setup
-1. Install dependencies:
+- Docker
+- Docker Compose
+- Node.js (for local frontend development)
+- Python 3.11 (for local backend development)
+
+## Getting Started
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd little_dragon
+   ```
+
+2. Start all services:
+   ```bash
+   docker-compose up --build
+   ```
+
+3. Access the applications:
+   - Frontend: http://localhost:3001
+   - Backend API: http://localhost:8005
+   - Redis: localhost:6379
+
+## Development
+
+### Frontend Development
+
 ```bash
 cd frontend
 npm install
-```
-
-2. Set up environment variables:
-```bash
-cp .env.example .env.local
-# Edit .env.local with your backend URL
-```
-
-3. Run the development server:
-```bash
 npm run dev
 ```
 
-## Project Structure
+### Backend Development
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8005
 ```
-little_dragon/
-├── backend/
-│   ├── app/
-│   │   ├── agent/
-│   │   ├── api/
-│   │   └── services/
-│   ├── requirements.txt
-│   └── main.py
-└── frontend/
-    ├── src/
-    │   ├── components/
-    │   ├── pages/
-    │   └── styles/
-    ├── package.json
-    └── next.config.js
-``` 
+
+### Worker Development
+
+```bash
+cd worker
+python -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+pip install -r requirements.txt
+celery -A app.celery_app worker --loglevel=INFO
+```
+
+## Environment Variables
+
+### Backend
+- `ENVIRONMENT`: Development/Production environment
+- `REDIS_URL`: Redis connection URL
+- `CELERY_BROKER_URL`: Celery broker URL
+- `CELERY_RESULT_BACKEND`: Celery result backend URL
+
+### Frontend
+- `NEXT_PUBLIC_API_URL`: Backend API URL
+- `PORT`: Frontend port (default: 3001)
+- `NODE_ENV`: Node environment
+
+### Worker
+- `REDIS_URL`: Redis connection URL
+- `CELERY_BROKER_URL`: Celery broker URL
+- `CELERY_RESULT_BACKEND`: Celery result backend URL
+- `LOG_LEVEL`: Logging level (default: INFO)
+
+## Docker Services
+
+- **frontend**: Next.js application
+- **backend**: FastAPI application
+- **worker**: Celery worker
+- `redis`: Redis server for message queue
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
