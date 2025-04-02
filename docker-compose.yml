@@ -9,7 +9,9 @@ services:
       - "8005:8005"
     environment:
       - ENVIRONMENT=development
-      - REDIS_URL=redis://redis:6379
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     volumes:
       - ./backend:/app
     depends_on:
@@ -33,6 +35,35 @@ services:
       - frontend_next:/app/.next
     depends_on:
       - backend
+    networks:
+      - app-network
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    environment:
+      # Redis Configuration
+      - REDIS_URL=redis://redis:6379/0
+      - REDIS_DB=0
+      # Celery Configuration
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_TASK_SERIALIZER=json
+      - CELERY_RESULT_SERIALIZER=json
+      - CELERY_ACCEPT_CONTENT=json
+      - CELERY_TIMEZONE=UTC
+      - CELERY_ENABLE_UTC=True
+      - CELERY_TASK_TRACK_STARTED=True
+      - CELERY_TASK_TIME_LIMIT=1800
+      - CELERY_WORKER_MAX_TASKS_PER_CHILD=100
+      - CELERY_WORKER_PREFETCH_MULTIPLIER=1
+      # Logging Configuration
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./worker:/app
+    depends_on:
+      - redis
     networks:
       - app-network
 
