@@ -18,6 +18,11 @@ services:
       - redis
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:8005/api/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   frontend:
     build:
@@ -28,15 +33,18 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:8005
       - PORT=3001
-      - NODE_ENV=production
+      - NODE_ENV=development
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - frontend_next:/app/.next
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - app-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   worker:
     build:
