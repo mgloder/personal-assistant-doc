@@ -13,6 +13,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/little_dragon
+      - LOG_LEVEL=DEBUG
     volumes:
       - ./backend:/app
     depends_on:
@@ -71,7 +72,7 @@ services:
       - CELERY_WORKER_MAX_TASKS_PER_CHILD=100
       - CELERY_WORKER_PREFETCH_MULTIPLIER=1
       # Logging Configuration
-      - LOG_LEVEL=INFO
+      - LOG_LEVEL=DEBUG
     volumes:
       - ./worker:/app
     depends_on:
