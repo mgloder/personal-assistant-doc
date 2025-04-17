@@ -24,7 +24,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://0.0.0.0:8005/api/"]
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:8005/api"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -36,13 +36,8 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8005
+      - NODE_ENV=production
       - PORT=3001
-      - NODE_ENV=development
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - frontend_next:/app/.next
     depends_on:
       backend:
         condition: service_healthy
